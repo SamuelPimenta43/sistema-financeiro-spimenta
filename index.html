@@ -3,17 +3,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Gestão Financeira</title>
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f3f5f6;--cd:#fff;--tx:#252b30;--mu:#77828a;--bd:#e6eaec;--pt:#0f5c6e;--ptl:#e3f0f3;--ok:#1f9d6b;--okl:#e2f5ed;--bad:#d64545;--badl:#fbe7e7;--wr:#d99a00;--wrl:#fdf3d6}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181a;--cd:#1e2427;--tx:#e8ecee;--mu:#93a0a7;--bd:#2b3337;--pt:#4fb0c6;--ptl:#1c3a42;--okl:#173a2d;--badl:#40201f;--wrl:#3f3210}}
-:root[data-theme="dark"]{--bg:#14181a;--cd:#1e2427;--tx:#e8ecee;--mu:#93a0a7;--bd:#2b3337;--pt:#4fb0c6;--ptl:#1c3a42;--okl:#173a2d;--badl:#40201f;--wrl:#3f3210}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#e8ecf1;--cd:#fff;--tx:#1b2433;--mu:#6b7686;--bd:#dbe1e8;--pt:#12305a;--ptl:#e1e9f4;--sb:#0f2747;--ok:#1f9d6b;--okl:#e2f5ed;--bad:#d64545;--badl:#fbe7e7;--wr:#d99a00;--wrl:#fdf3d6}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1420;--cd:#162033;--tx:#e6ebf3;--mu:#93a0b5;--bd:#26314a;--pt:#3f72c4;--ptl:#1c2b4a;--sb:#0a1120;--okl:#173a2d;--badl:#40201f;--wrl:#3f3210}}
+:root[data-theme="dark"]{--bg:#0d1420;--cd:#162033;--tx:#e6ebf3;--mu:#93a0b5;--bd:#26314a;--pt:#3f72c4;--ptl:#1c2b4a;--sb:#0a1120;--okl:#173a2d;--badl:#40201f;--wrl:#3f3210}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .app{display:flex;min-height:100vh}
-aside{width:220px;background:var(--cd);border-right:1px solid var(--bd);padding:18px 12px;flex:none;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
-.brand{font-weight:700;font-size:16px;color:var(--pt);padding:4px 10px 16px}
-.nav{all:unset;box-sizing:border-box;cursor:pointer;padding:9px 12px;border-radius:9px;color:var(--mu);font-weight:500}
-.nav:hover{background:var(--bg)}.nav.on{background:var(--ptl);color:var(--pt);font-weight:600}
+aside{width:220px;background:var(--sb);padding:18px 12px;flex:none;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+.brandbox{display:flex;align-items:center;gap:10px;padding:2px 6px 18px}.logo{width:46px;height:46px;flex:none;border:1.5px dashed #ffffff55;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;letter-spacing:1px;color:#ffffff88;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain}.brand{font-weight:700;font-size:15px;line-height:1.2;color:#fff}
+.nav{all:unset;box-sizing:border-box;cursor:pointer;padding:9px 12px;border-radius:9px;color:#b7c4d9;font-weight:500}
+.nav:hover{background:#ffffff14}.nav.on{background:var(--ok);color:#fff;font-weight:600}
 .main{flex:1;min-width:0}
 .top{display:flex;gap:12px;padding:14px 24px;background:var(--cd);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5;align-items:center}
 .sb{position:relative;flex:1;max-width:560px}
@@ -44,7 +44,7 @@ input,select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--bd);b
 .dlg{background:var(--cd);border-radius:16px;padding:22px;width:min(640px,100%);max-height:92vh;overflow:auto}
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fg label{font-size:12px;color:var(--mu);display:block}.fg .full{grid-column:1/-1}
 .fa{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}#err{color:var(--bad);margin-top:10px}
-@media(max-width:900px){.app{flex-direction:column}aside{width:100%;height:auto;position:static;flex-direction:row;overflow-x:auto;padding:8px}.brand{display:none}.nav{white-space:nowrap}.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.top{padding:10px 12px}section{padding:14px}}
+@media(max-width:900px){.app{flex-direction:column}aside{width:100%;height:auto;position:static;flex-direction:row;overflow-x:auto;padding:8px}.brandbox{display:none}.nav{white-space:nowrap}.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.top{padding:10px 12px}section{padding:14px}}
 </style></head><body>
 <div class="app">
 <aside id="side"></aside>
@@ -55,6 +55,7 @@ input,select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--bd);b
 <div id="modal"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const LOGO_URL=""; // coloque aqui o endereço da imagem da logomarca
 const SUPABASE_URL="https://gnvvuegpiicrizbtqphb.supabase.co";
 const SUPABASE_KEY="sb_publishable_z0iD8ZkM4fcO6EPmipeDUw_QoAV-Gwk";
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
@@ -215,7 +216,7 @@ $('#q').oninput=e=>{const s=norm(e.target.value),r=$('#res'),o=[],has=(...a)=>a.
 document.addEventListener('input',e=>{if(e.target.id=='fq'){F.q=e.target.value;$('#ltb').innerHTML=ltab()}});
 document.addEventListener('change',e=>{if(e.target.id=='ft'||e.target.id=='fs'){F[e.target.id=='ft'?'t':'s']=e.target.value;$('#ltb').innerHTML=ltab()}});
 const NAV=[['dash','Dashboard'],['lanc','Lançamentos'],['banc','Bancos e Caixas'],['obra','Obras'],['cc','Centros de Custo'],['forn','Fornecedores']],VW={dash,lanc,banc,obra,cc,forn};
-function render(){$('#side').innerHTML='<div class="brand">◼ Gestão Financeira</div>'+NAV.map(n=>`<button class="nav ${V==n[0]?'on':''}" data-a="go:${n[0]}">${n[1]}</button>`).join('')+`<div style="margin-top:auto;padding:10px;font-size:12px;color:var(--mu)">${esc(CURRENT_USER?.email||'')}<br><button id="logout" class="btn sm ghost" style="margin-top:8px">Sair</button></div>`;$('#view').innerHTML=VW[V]();const b=$('#logout');if(b)b.onclick=async()=>{await sb.auth.signOut();location.reload()}}
+function render(){$('#side').innerHTML='<div class="brandbox"><div class="logo">'+(LOGO_URL?'<img src="'+LOGO_URL+'" alt="Logomarca">':'LOGO')+'</div><div class="brand">Gestão Financeira</div></div>'+NAV.map(n=>`<button class="nav ${V==n[0]?'on':''}" data-a="go:${n[0]}">${n[1]}</button>`).join('')+`<div style="margin-top:auto;padding:10px;font-size:12px;color:#b7c4d9">${esc(CURRENT_USER?.email||'')}<br><button id="logout" class="btn sm ghost" style="margin-top:8px">Sair</button></div>`;$('#view').innerHTML=VW[V]();const b=$('#logout');if(b)b.onclick=async()=>{await sb.auth.signOut();location.reload()}}
 function loginScreen(msg=''){$('#side').innerHTML='';document.querySelector('.top').style.display='none';$('#view').innerHTML=`<div style="max-width:420px;margin:10vh auto" class="card"><h1>Gestão Financeira</h1><p class="mu">Entre com seu e-mail e senha.</p><form id="login"><label>E-mail</label><input id="email" type="email" required><br><br><label>Senha</label><input id="senha" type="password" required><p id="loginerr" class="bad">${esc(msg)}</p><button class="btn" style="width:100%">Entrar</button></form></div>`;$('#login').onsubmit=async e=>{e.preventDefault();const {error}=await sb.auth.signInWithPassword({email:$('#email').value,password:$('#senha').value});if(error){$('#loginerr').textContent='E-mail ou senha inválidos.';return}await boot()}}
 async function boot(){const {data:{user}}=await sb.auth.getUser();if(!user){loginScreen();return}CURRENT_USER=user;document.querySelector('.top').style.display='flex';try{await loadDB();render()}catch(e){loginScreen('Não foi possível carregar os dados: '+e.message)}}
 boot();
