@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gestão Financeira</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f3f5f6;--cd:#fff;--tx:#252b30;--mu:#77828a;--bd:#e6eaec;--pt:#0f5c6e;--ptl:#e3f0f3;--ok:#1f9d6b;--okl:#e2f5ed;--bad:#d64545;--badl:#fbe7e7;--wr:#d99a00;--wrl:#fdf3d6}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181a;--cd:#1e2427;--tx:#e8ecee;--mu:#93a0a7;--bd:#2b3337;--pt:#4fb0c6;--ptl:#1c3a42;--okl:#173a2d;--badl:#40201f;--wrl:#3f3210}}
+:root[data-theme="dark"]{--bg:#14181a;--cd:#1e2427;--tx:#e8ecee;--mu:#93a0a7;--bd:#2b3337;--pt:#4fb0c6;--ptl:#1c3a42;--okl:#173a2d;--badl:#40201f;--wrl:#3f3210}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.app{display:flex;min-height:100vh}
+aside{width:220px;background:var(--cd);border-right:1px solid var(--bd);padding:18px 12px;flex:none;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+.brand{font-weight:700;font-size:16px;color:var(--pt);padding:4px 10px 16px}
+.nav{all:unset;box-sizing:border-box;cursor:pointer;padding:9px 12px;border-radius:9px;color:var(--mu);font-weight:500}
+.nav:hover{background:var(--bg)}.nav.on{background:var(--ptl);color:var(--pt);font-weight:600}
+.main{flex:1;min-width:0}
+.top{display:flex;gap:12px;padding:14px 24px;background:var(--cd);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5;align-items:center}
+.sb{position:relative;flex:1;max-width:560px}
+.sb input{width:100%;padding:10px 14px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+#res{position:absolute;top:44px;left:0;right:0;background:var(--cd);border:1px solid var(--bd);border-radius:12px;box-shadow:0 10px 30px #0002;overflow:hidden}
+#res div{padding:9px 14px;cursor:pointer;display:flex;gap:10px}#res div:hover{background:var(--bg)}#res small{color:var(--mu);width:84px;flex:none}
+section{padding:24px;max-width:1200px}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:15px;margin:0 0 12px}.mu{color:var(--mu)}
+.hd{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;gap:10px;flex-wrap:wrap}
+.btn{font:inherit;font-weight:600;background:var(--pt);color:#fff;border:0;border-radius:9px;padding:9px 16px;cursor:pointer;white-space:nowrap}
+.btn.ghost{background:none;color:var(--pt);border:1px solid var(--bd)}.btn.sm{padding:4px 10px;font-size:12px}
+.grid{display:grid;gap:16px;margin-bottom:16px}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1.4fr 1fr}.g3{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:14px;padding:18px;min-width:0}
+.kpi b{display:block;font-size:24px;margin:4px 0;letter-spacing:-.5px}.kpi span{color:var(--mu);font-size:13px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.wr{color:var(--wr)}.pt{color:var(--pt)}
+.chip{display:inline-block;padding:2px 9px;border-radius:20px;font-size:12px;font-weight:600;background:var(--bg);color:var(--mu)}
+.chip.ok{background:var(--okl)}.chip.bad{background:var(--badl)}.chip.wr{background:var(--wrl)}.chip.pt{background:var(--ptl)}
+.wrap{overflow-x:auto}table{width:100%;border-collapse:collapse}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);text-align:left;padding:8px 10px;font-weight:600;white-space:nowrap}
+td{padding:11px 10px;border-top:1px solid var(--bd);vertical-align:middle}tr.c{cursor:pointer}tr.c:hover td{background:var(--bg)}
+.v{text-align:right;white-space:nowrap}td small{display:block;color:var(--mu)}
+.bar{height:8px;background:var(--bg);border-radius:8px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--pt);border-radius:8px}.bar i.bad{background:var(--bad)}
+.al{display:flex;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:13px}.al.bad{background:var(--badl)}.al.wr{background:var(--wrl)}.al.ok{background:var(--okl)}
+.fl{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+input,select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--bd);border-radius:9px;background:var(--cd);color:var(--tx);width:100%;min-width:0}
+.fl input,.fl select{width:auto}.fl input{flex:1;min-width:180px}
+.ov{position:fixed;inset:0;background:#0007;display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+.dlg{background:var(--cd);border-radius:16px;padding:22px;width:min(640px,100%);max-height:92vh;overflow:auto}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fg label{font-size:12px;color:var(--mu);display:block}.fg .full{grid-column:1/-1}
+.fa{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}#err{color:var(--bad);margin-top:10px}
+@media(max-width:900px){.app{flex-direction:column}aside{width:100%;height:auto;position:static;flex-direction:row;overflow-x:auto;padding:8px}.brand{display:none}.nav{white-space:nowrap}.g4{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.top{padding:10px 12px}section{padding:14px}}
+</style></head><body>
+<div class="app">
+<aside id="side"></aside>
+<div class="main">
+<header class="top"><div class="sb"><input id="q" placeholder="Pesquisar lançamentos, fornecedores, obras, clientes, compromissos…" autocomplete="off"><div id="res" hidden></div></div><button class="btn" data-a="nl">+ Novo lançamento</button></header>
+<section id="view"></section>
+</div></div>
+<div id="modal"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const brl=v=>(+v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const iso=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
+const d=n=>{const x=new Date();x.setHours(12);x.setDate(x.getDate()+n);return iso(x)};
+const T=d(0),CM=T.slice(0,7),uid=()=>Math.random().toString(36).slice(2,8);
+const fd=s=>s?s.slice(8)+'/'+s.slice(5,7)+'/'+s.slice(2,4):'—';
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const sum=a=>a.reduce((x,l)=>x+l.v,0),R=l=>l.t==='R',D=l=>l.t==='D';
+
+function seed(){
+ const L=(t,desc,v,obra,etapa,cc,cat,p,conta,cm,venc,pg,emp='e1')=>({id:uid(),t,desc,v,obra,etapa,emp,cc,cat,p,conta,comp:d(cm).slice(0,7),venc:d(venc),pg:pg===''?'':d(pg)});
+ return{emp:[{id:'e1',nome:'Construtora'},{id:'e2',nome:'Fazenda Café'}],
+ contas:[{id:'b1',nome:'Itaú Construtora',emp:'e1',saldo:80000},{id:'b2',nome:'Sicoob Fazenda',emp:'e2',saldo:45000},{id:'b3',nome:'Caixa da obra',emp:'e1',saldo:3000}],
+ cc:[{id:'k1',nome:'Obras – Materiais',emp:'e1'},{id:'k2',nome:'Obras – Mão de obra',emp:'e1'},{id:'k3',nome:'Colheita de café',emp:'e2'},{id:'k4',nome:'Insumos agrícolas',emp:'e2'},{id:'k5',nome:'Administrativo',emp:'e1'},{id:'k6',nome:'Receitas de obra',emp:'e1'}],
+ cat:[{id:'g1',nome:'Materiais'},{id:'g2',nome:'Mão de obra'},{id:'g3',nome:'Insumos'},{id:'g4',nome:'Serviços'},{id:'g5',nome:'Medições / vendas'},{id:'g6',nome:'Venda de café'}],
+ forn:[{id:'f1',nome:'Cimento Forte',doc:'',tel:''},{id:'f2',nome:'Casa do Aço',doc:'',tel:''},{id:'f3',nome:'Eletro Sul',doc:'',tel:''},{id:'f4',nome:'Agro Insumos',doc:'',tel:''},{id:'f5',nome:'Empreiteira Silva',doc:'',tel:''}],
+ cli:[{id:'c1',nome:'Família Almeida',doc:'',tel:''},{id:'c2',nome:'Clínica Vida',doc:'',tel:''},{id:'c3',nome:'Cooperativa do Café',doc:'',tel:''}],
+ obras:[{id:'o1',nome:'Residencial Aurora',emp:'e1',cli:'c1',contrato:850000,etapas:[{id:'t1',nome:'Fundação',orc:90000},{id:'t2',nome:'Estrutura',orc:180000},{id:'t3',nome:'Alvenaria',orc:120000},{id:'t4',nome:'Acabamento',orc:200000}]},
+  {id:'o2',nome:'Reforma Clínica Vida',emp:'e1',cli:'c2',contrato:220000,etapas:[{id:'t5',nome:'Demolição',orc:15000},{id:'t6',nome:'Elétrica',orc:40000},{id:'t7',nome:'Acabamento',orc:90000}]}],
+ l:[L('R','Medição 1 – Aurora',150000,'o1','t1','k6','g5','c1','b1',-60,-55,-55),L('R','Medição 2 – Aurora',200000,'o1','t2','k6','g5','c1','b1',-30,-20,-20),L('R','Medição 3 – Aurora',180000,'o1','t3','k6','g5','c1','b1',0,8,''),
+  L('R','Sinal – Clínica Vida',66000,'o2','t5','k6','g5','c2','b1',-30,-25,-25),L('R','Venda de café – safra',90000,'','','k3','g6','c3','b2',0,12,'','e2'),
+  L('D','Cimento – fundação',48000,'o1','t1','k1','g1','f1','b1',-60,-58,-58),L('D','Aço – fundação',50000,'o1','t1','k1','g1','f2','b1',-60,-50,-50),
+  L('D','Concreto – estrutura',92000,'o1','t2','k1','g1','f1','b1',-30,-18,-18),L('D','Aço – estrutura',61000,'o1','t2','k1','g1','f2','b1',-30,-3,''),
+  L('D','Empreiteira – alvenaria',54000,'o1','t3','k2','g2','f5','b1',0,5,''),L('D','Materiais elétricos',27000,'o2','t6','k1','g1','f3','b1',-30,-10,-10),
+  L('D','Demolição',14000,'o2','t5','k2','g2','f5','b1',-30,-24,-24),L('D','Adubo – lavoura',32000,'','','k4','g3','f4','b2',0,7,'','e2'),L('D','Diaristas – colheita',28000,'','','k3','g2','f5','b2',0,10,'','e2'),L('D','Contabilidade',6500,'','','k5','g4','','b1',0,15,'')]}}
+let DB;try{DB=JSON.parse(localStorage.getItem('gf-db'))}catch(e){}DB=DB||seed();
+let V='dash',OB=null,F={q:'',t:'',s:''};
+const commit=()=>{try{localStorage.setItem('gf-db',JSON.stringify(DB))}catch(e){}render()};
+const nm=(a,id)=>(DB[a].find(x=>x.id===id)||{}).nome||'—';
+const parte=l=>nm(l.t==='D'?'forn':'cli',l.p);
+const st=l=>l.pg?'Pago':(l.venc<T?'Vencido':'Aberto');
+const saldo=c=>c.saldo+DB.l.filter(l=>l.conta===c.id&&l.pg).reduce((a,l)=>a+(R(l)?l.v:-l.v),0);
+const cost=(o,e)=>sum(DB.l.filter(l=>D(l)&&l.obra===o.id&&(!e||l.etapa===e)));
+function oi(o){const orc=o.etapas.reduce((a,e)=>a+e.orc,0),rows=o.etapas.map(e=>{const r=cost(o,e.id);return{...e,r,dif:e.orc-r,pct:e.orc?r/e.orc*100:0}});
+ const real=cost(o),sem=real-rows.reduce((a,e)=>a+e.r,0),proj=rows.reduce((a,e)=>a+Math.max(e.orc,e.r),0)+sem;
+ return{orc,rows,real,sem,mp:o.contrato?(o.contrato-orc)/o.contrato*100:0,ma:o.contrato?(o.contrato-proj)/o.contrato*100:0}}
+const chip=(t,c)=>`<span class="chip ${c}">${esc(t)}</span>`;
+const sc=s=>s==='Pago'?'ok':s==='Vencido'?'bad':'wr';
+const pc=v=>v.toFixed(1).replace('.',',')+'%';
+const kpi=(l,v,s,c='')=>`<div class="card kpi"><span>${l}</span><b class="${c}">${v}</b><span>${s}</span></div>`;
+const tbl=(h,r,e='Nada por aqui ainda.')=>r.length?`<div class="wrap"><table><tr>${h.map(x=>`<th class="${x[0]=='>'?'v':''}">${x.replace('>','')}</th>`).join('')}</tr>${r.join('')}</table></div>`:`<p class="mu">${e}</p>`;
+
+/* ---------- views ---------- */
+function dash(){
+ const ab=DB.l.filter(l=>!l.pg),mes=DB.l.filter(l=>l.comp===CM),rec=sum(mes.filter(R)),des=sum(mes.filter(D)),res=rec-des,caixa=DB.contas.reduce((a,c)=>a+saldo(c),0);
+ const ms=[...Array(6)].map((_,i)=>{const x=new Date();x.setHours(12);x.setDate(1);x.setMonth(x.getMonth()-5+i);return iso(x).slice(0,7)});
+ const fx=ms.map(m=>({m,i:sum(DB.l.filter(l=>R(l)&&l.pg.startsWith(m))),o:sum(DB.l.filter(l=>D(l)&&l.pg.startsWith(m)))})),mx=Math.max(1,...fx.flatMap(x=>[x.i,x.o]));
+ const chart=`<svg viewBox="0 0 600 190" style="width:100%">${fx.map((x,i)=>{const X=i*100+22,hi=x.i/mx*140,ho=x.o/mx*140;return `<rect x="${X}" y="${150-hi}" width="26" height="${hi}" rx="4" fill="var(--ok)"/><rect x="${X+30}" y="${150-ho}" width="26" height="${ho}" rx="4" fill="var(--bad)"/><text x="${X+28}" y="172" text-anchor="middle" font-size="12" fill="var(--mu)">${new Date(x.m+'-15').toLocaleDateString('pt-BR',{month:'short'})}</text>`}).join('')}</svg><span class="chip ok">Entradas</span> <span class="chip bad">Saídas</span> <span class="mu">(por data de pagamento)</span>`;
+ const al=[];const venc=ab.filter(l=>l.venc<T);
+ if(venc.length)al.push(`<div class="al bad" data-a="fv">● ${venc.length} conta(s) vencida(s) somando ${brl(sum(venc))}</div>`);
+ DB.contas.filter(c=>saldo(c)<0).forEach(c=>al.push(`<div class="al bad" data-a="go:banc">● Saldo negativo em ${esc(c.nome)}</div>`));
+ DB.obras.forEach(o=>{const i=oi(o);i.rows.filter(e=>e.r>e.orc).forEach(e=>al.push(`<div class="al wr" data-a="ob:${o.id}">▲ ${esc(o.nome)} · ${esc(e.nome)}: ${brl(-e.dif)} acima do orçamento (${Math.round(e.pct)}%)</div>`));
+  if(i.ma<i.mp-0.05)al.push(`<div class="al wr" data-a="ob:${o.id}">▲ ${esc(o.nome)}: margem projetada caiu de ${pc(i.mp)} para ${pc(i.ma)}</div>`)});
+ const prox=ab.sort((a,b)=>a.venc.localeCompare(b.venc)).slice(0,6);
+ return `<div class="hd"><div><h1>Dashboard</h1><span class="mu">Visão geral de hoje · ${fd(T)}</span></div></div>
+ <div class="grid g4">${kpi('Caixa disponível',brl(caixa),DB.contas.length+' conta(s)/caixa(s)',caixa<0?'bad':'pt')}${kpi('Contas a pagar',brl(sum(ab.filter(D))),ab.filter(D).length+' em aberto','bad')}${kpi('Contas a receber',brl(sum(ab.filter(R))),ab.filter(R).length+' em aberto','ok')}${kpi('Resultado do mês',brl(res),'Receitas '+brl(rec)+' · Despesas '+brl(des),res<0?'bad':'ok')}</div>
+ <div class="grid g2"><div class="card"><h2>Fluxo de caixa</h2>${chart}</div><div class="card"><h2>Alertas</h2>${al.join('')||'<div class="al ok">● Tudo em dia.</div>'}</div></div>
+ <div class="grid g2"><div class="card"><h2>Obras: orçado x realizado</h2>${DB.obras.map(o=>{const i=oi(o),p=i.orc?i.real/i.orc*100:0;return `<div data-a="ob:${o.id}" style="cursor:pointer;margin-bottom:14px"><b>${esc(o.nome)}</b> <span class="mu" style="float:right">${brl(i.real)} de ${brl(i.orc)}</span><div class="bar"><i class="${p>100?'bad':''}" style="width:${Math.min(p,100)}%"></i></div></div>`}).join('')||'<p class="mu">Nenhuma obra cadastrada.</p>'}</div>
+ <div class="card"><h2>Próximos vencimentos</h2>${tbl(['Venc.','Descrição','>Valor'],prox.map(l=>`<tr><td>${fd(l.venc)}</td><td>${esc(l.desc)}<small>${esc(parte(l))}</small></td><td class="v ${R(l)?'ok':'bad'}">${R(l)?'+':'−'}${brl(l.v)}<small>${st(l)}</small></td></tr>`),'Nenhum vencimento em aberto.')}</div></div>`}
+
+function ltab(){
+ const s=norm(F.q),rows=DB.l.filter(l=>(!F.t||l.t===F.t)&&(!F.s||st(l)===F.s)&&(!s||[l.desc,parte(l),nm('obras',l.obra),nm('cc',l.cc),nm('cat',l.cat),nm('contas',l.conta)].some(x=>norm(x).includes(s)))).sort((a,b)=>b.venc.localeCompare(a.venc));
+ return tbl(['Venc.','Descrição','Centro / categoria','Conta','>Valor','Status',''],rows.map(l=>`<tr><td>${fd(l.venc)}</td><td><b>${esc(l.desc)}</b><small>${l.obra?esc(nm('obras',l.obra))+' · '+esc(((DB.obras.find(o=>o.id===l.obra)||{etapas:[]}).etapas.find(e=>e.id===l.etapa)||{nome:'sem etapa'}).nome)+' · ':''}${esc(parte(l))} · ${esc(nm('emp',l.emp))}</small></td><td>${esc(nm('cc',l.cc))}<small>${esc(nm('cat',l.cat))}</small></td><td>${esc(nm('contas',l.conta))}</td><td class="v ${R(l)?'ok':'bad'}">${R(l)?'+':'−'}${brl(l.v)}</td><td>${chip(st(l),sc(st(l)))}</td><td class="v">${l.pg?'':`<button class="btn sm" data-a="pay:${l.id}">${R(l)?'Receber':'Pagar'}</button> `}<button class="btn sm ghost" data-a="el:${l.id}">Editar</button> <button class="btn sm ghost" data-a="dl:${l.id}">✕</button></td></tr>`),'Nenhum lançamento encontrado.')}
+function lanc(){return `<div class="hd"><div><h1>Lançamentos</h1><span class="mu">Um lançamento alimenta caixa, obras, centros e fornecedores.</span></div><button class="btn" data-a="nl">+ Novo lançamento</button></div>
+ <div class="fl"><input id="fq" placeholder="Filtrar…" value="${esc(F.q)}"><select id="ft"><option value="">Todos os tipos</option><option value="D" ${F.t=='D'?'selected':''}>Despesas</option><option value="R" ${F.t=='R'?'selected':''}>Receitas</option></select><select id="fs"><option value="">Todos os status</option>${['Aberto','Vencido','Pago'].map(x=>`<option ${F.s==x?'selected':''}>${x}</option>`).join('')}</select></div><div class="card" id="ltb">${ltab()}</div>`}
+
+function banc(){
+ return `<div class="hd"><div><h1>Bancos e Caixas</h1><span class="mu">Saldo = saldo inicial + recebidos − pagos.</span></div><button class="btn" data-a="add:contas">+ Nova conta</button></div>
+ <div class="grid g3">${DB.contas.map(c=>{const m=DB.l.filter(l=>l.conta===c.id),s=saldo(c);return `<div class="card"><span class="mu">${esc(nm('emp',c.emp))}</span><h2 style="margin:2px 0">${esc(c.nome)}</h2><b class="${s<0?'bad':'pt'}" style="font-size:26px">${brl(s)}</b><p class="mu">Entradas ${brl(sum(m.filter(l=>l.pg&&R(l))))} · Saídas ${brl(sum(m.filter(l=>l.pg&&D(l))))}<br>A receber ${brl(sum(m.filter(l=>!l.pg&&R(l))))} · A pagar ${brl(sum(m.filter(l=>!l.pg&&D(l))))}</p><button class="btn sm ghost" data-a="ed:contas:${c.id}">Editar</button></div>`}).join('')}</div>
+ <div class="card"><h2>Últimas movimentações</h2>${tbl(['Data','Descrição','Conta','>Valor'],DB.l.filter(l=>l.pg).sort((a,b)=>b.pg.localeCompare(a.pg)).slice(0,10).map(l=>`<tr><td>${fd(l.pg)}</td><td>${esc(l.desc)}</td><td>${esc(nm('contas',l.conta))}</td><td class="v ${R(l)?'ok':'bad'}">${R(l)?'+':'−'}${brl(l.v)}</td></tr>`))}</div>`}
+
+const mc=(i)=>i.ma<0?'bad':i.ma<i.mp-0.05?'wr':'ok';
+function obra(){
+ if(OB){const o=DB.obras.find(x=>x.id===OB);if(!o){OB=null;return obra()}const i=oi(o);
+  return `<div class="hd"><div><button class="btn sm ghost" data-a="ob:">← Obras</button><h1 style="margin-top:8px">${esc(o.nome)}</h1><span class="mu">${esc(nm('cli',o.cli))} · ${esc(nm('emp',o.emp))}</span></div><button class="btn" data-a="eo:${o.id}">Editar obra e orçamento</button></div>
+  <div class="grid g4">${kpi('Contrato',brl(o.contrato),'Orçado '+brl(i.orc))}${kpi('Realizado',brl(i.real),'Diferença '+brl(i.orc-i.real),i.real>i.orc?'bad':'')}${kpi('Margem prevista',pc(i.mp),'contrato − orçado','pt')}${kpi('Margem atual',pc(i.ma),'projetada com estouros',mc(i))}</div>
+  <div class="card"><h2>Orçado x realizado por etapa</h2>${tbl(['Etapa','>Orçado','>Realizado','>Diferença','Execução',''],i.rows.map(e=>`<tr><td><b>${esc(e.nome)}</b></td><td class="v">${brl(e.orc)}</td><td class="v">${brl(e.r)}</td><td class="v ${e.dif<0?'bad':'ok'}">${brl(e.dif)}</td><td style="min-width:120px"><div class="bar"><i class="${e.pct>100?'bad':''}" style="width:${Math.min(e.pct,100)}%"></i></div>${Math.round(e.pct)}%</td><td>${e.r>e.orc?chip('Acima do orçamento','bad'):e.pct>90?chip('Atenção','wr'):chip('No orçamento','ok')}</td></tr>`).concat(i.sem>0?[`<tr><td>Sem etapa</td><td class="v">—</td><td class="v">${brl(i.sem)}</td><td></td><td></td><td>${chip('Classificar','wr')}</td></tr>`]:[]),'Cadastre etapas no orçamento da obra.')}</div>`}
+ return `<div class="hd"><div><h1>Obras</h1><span class="mu">Orçamento por etapa, realizado e margem.</span></div><button class="btn" data-a="no">+ Nova obra</button></div><div class="grid g3">${DB.obras.map(o=>{const i=oi(o),p=i.orc?i.real/i.orc*100:0;return `<div class="card" data-a="ob:${o.id}" style="cursor:pointer"><h2>${esc(o.nome)}</h2><span class="mu">${esc(nm('cli',o.cli))}</span><div class="bar"><i class="${p>100?'bad':''}" style="width:${Math.min(p,100)}%"></i></div><p class="mu">${brl(i.real)} de ${brl(i.orc)}</p>${chip('Prevista '+pc(i.mp),'pt')} ${chip('Atual '+pc(i.ma),mc(i))}</div>`}).join('')||'<p class="mu">Nenhuma obra cadastrada.</p>'}</div>`}
+
+function cc(){return `<div class="hd"><div><h1>Centros de Custo</h1><span class="mu">Resultado por área da empresa. Clique para ver os lançamentos.</span></div><button class="btn" data-a="add:cc">+ Novo centro</button></div><div class="card">${tbl(['Centro','Empresa','>Receitas','>Despesas','>Resultado',''],DB.cc.map(k=>{const m=DB.l.filter(l=>l.cc===k.id),r=sum(m.filter(R)),x=sum(m.filter(D));return `<tr class="c" data-a="filt:${k.id}"><td><b>${esc(k.nome)}</b></td><td>${esc(nm('emp',k.emp))}</td><td class="v ok">${brl(r)}</td><td class="v bad">${brl(x)}</td><td class="v ${r-x<0?'bad':'ok'}">${brl(r-x)}</td><td class="v"><button class="btn sm ghost" data-a="ed:cc:${k.id}">Editar</button></td></tr>`}))}</div>`}
+
+function forn(){const blk=(k,tt,dt)=>`<div class="card" style="margin-bottom:16px"><div class="hd" style="margin:0 0 8px"><h2 style="margin:0">${tt}</h2><button class="btn sm" data-a="add:${k}">+ Novo</button></div>${tbl([k=='forn'?'Fornecedor':'Cliente','>Total lançado','>Em aberto','Próx. venc.','>Lanç.',''],DB[k].map(f=>{const m=DB.l.filter(l=>l.p===f.id&&l.t===dt),ab=m.filter(l=>!l.pg).sort((a,b)=>a.venc.localeCompare(b.venc));return `<tr class="c" data-a="filt:${f.id}"><td><b>${esc(f.nome)}</b><small>${esc(f.doc||'')}</small></td><td class="v">${brl(sum(m))}</td><td class="v ${ab.length?'wr':''}">${brl(sum(ab))}</td><td>${ab[0]?fd(ab[0].venc):'—'}</td><td class="v">${m.length}</td><td class="v"><button class="btn sm ghost" data-a="ed:${k}:${f.id}">Editar</button></td></tr>`}))}</div>`;
+ return `<div class="hd"><div><h1>Fornecedores</h1><span class="mu">Totais calculados dos lançamentos.</span></div></div>`+blk('forn','Fornecedores','D')+blk('cli','Clientes','R')}
+
+/* ---------- formulários ---------- */
+function openForm(title,fields,vals,onSave,opt={}){
+ const draw=()=>{const fld=f=>{const v=vals[f.k]??'',lb=typeof f.l=='function'?f.l(vals):f.l;
+  const c=f.t=='sel'?`<select name="${f.k}" ${f.dep?'data-dep=1':''}>${f.o(vals).map(o=>`<option value="${esc(o[0])}" ${o[0]==v?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`:f.t=='area'?`<textarea name="${f.k}" rows="6">${esc(v)}</textarea>`:`<input name="${f.k}" type="${f.t||'text'}" ${f.t=='number'?'step="0.01"':''} value="${esc(v)}">`;
+  return `<div class="${f.full?'full':''}"><label>${lb}</label>${c}</div>`};
+  $('#modal').innerHTML=`<div class="ov"><form class="dlg" id="fm"><h2>${title}</h2>${opt.note?`<p class="mu">${opt.note}</p>`:''}<div class="fg">${fields.filter(f=>!f.show||f.show(vals)).map(fld).join('')}</div><div id="err"></div><div class="fa"><button type="button" class="btn ghost" data-a="cl">Cancelar</button><button class="btn">${opt.ok||'Salvar'}</button></div></form></div>`;
+  const fm=$('#fm'),grab=()=>fields.forEach(f=>{const e=fm.elements[f.k];if(e)vals[f.k]=f.t=='number'?(e.value===''?'':parseFloat(e.value)):e.value});
+  fm.onchange=e=>{if(e.target.dataset.dep){grab();if(e.target.name=='t')vals.p='';if(e.target.name=='obra')vals.etapa='';draw()}};
+  fm.onsubmit=e=>{e.preventDefault();grab();const er=onSave(vals);if(er)$('#err').textContent=er;else $('#modal').innerHTML=''}};
+ draw()}
+const so=(a,e)=>()=>[...(e?[['','—']]:[]),...DB[a].map(x=>[x.id,x.nome])];
+const LF=[{k:'t',l:'Tipo',t:'sel',dep:1,o:()=>[['D','Despesa (a pagar)'],['R','Receita (a receber)']]},{k:'desc',l:'Descrição',full:1},{k:'v',l:'Valor (R$)',t:'number'},
+ {k:'conta',l:'Conta bancária / caixa',t:'sel',o:so('contas')},{k:'obra',l:'Obra',t:'sel',dep:1,o:so('obras',1)},
+ {k:'etapa',l:'Etapa da obra',t:'sel',show:v=>!!v.obra,o:v=>[['','—'],...((DB.obras.find(o=>o.id===v.obra)||{etapas:[]}).etapas.map(e=>[e.id,e.nome]))]},
+ {k:'emp',l:'Empresa',t:'sel',show:v=>!v.obra,o:so('emp')},{k:'cc',l:'Centro de custo',t:'sel',o:so('cc',1)},{k:'cat',l:'Categoria financeira',t:'sel',o:so('cat',1)},
+ {k:'p',l:v=>v.t=='D'?'Fornecedor':'Cliente',t:'sel',o:v=>[['','—'],...DB[v.t=='D'?'forn':'cli'].map(x=>[x.id,x.nome])]},
+ {k:'comp',l:'Competência',t:'month'},{k:'venc',l:'Vencimento',t:'date'},{k:'pg',l:'Pagamento / recebimento',t:'date'}];
+function formL(rec){openForm(rec?'Editar lançamento':'Novo lançamento',LF,rec?{...rec}:{t:'D',emp:DB.emp[0].id,conta:(DB.contas[0]||{}).id,comp:CM,venc:T,obra:'',etapa:''},v=>{
+ if(!v.desc)return 'Informe a descrição.';if(!(v.v>0))return 'Informe um valor maior que zero.';if(!v.conta)return 'Cadastre e escolha uma conta em Bancos e Caixas.';if(!v.venc)return 'Informe o vencimento.';
+ const o=DB.obras.find(o=>o.id===v.obra);if(o){v.emp=o.emp;if(!o.etapas.some(e=>e.id===v.etapa))v.etapa=''}else{v.obra='';v.etapa=''}
+ const{t,desc,v:val,obra,etapa,emp,cc,cat,p,conta,comp,venc,pg}=v,n={id:rec?rec.id:uid(),t,desc,v:val,obra,etapa,emp,cc:cc||'',cat:cat||'',p:p||'',conta,comp,venc,pg:pg||''};
+ if(rec)DB.l[DB.l.findIndex(l=>l.id===rec.id)]=n;else DB.l.push(n);commit()},{note:'Status automático: com data de pagamento fica Pago; sem ela, Aberto ou Vencido.'})}
+const KF={forn:['Fornecedor',[{k:'nome',l:'Nome',full:1},{k:'doc',l:'CNPJ/CPF'},{k:'tel',l:'Contato'}]],cli:['Cliente',[{k:'nome',l:'Nome',full:1},{k:'doc',l:'CNPJ/CPF'},{k:'tel',l:'Contato'}]],
+ cc:['Centro de custo',[{k:'nome',l:'Nome',full:1},{k:'emp',l:'Empresa',t:'sel',o:so('emp')}]],contas:['Conta / caixa',[{k:'nome',l:'Nome',full:1},{k:'emp',l:'Empresa',t:'sel',o:so('emp')},{k:'saldo',l:'Saldo inicial (R$)',t:'number'}]]};
+function formO(o){const ob=o||{emp:DB.emp[0].id,etapas:[]};
+ openForm(o?'Editar obra':'Nova obra',[{k:'nome',l:'Nome da obra',full:1},{k:'emp',l:'Empresa',t:'sel',o:so('emp')},{k:'cli',l:'Cliente',t:'sel',o:so('cli',1)},{k:'contrato',l:'Valor do contrato (R$)',t:'number'},
+ {k:'et',l:'Orçamento por etapa — uma por linha: nome;valor (ex.: Fundação;90000)',t:'area',full:1}],{...ob,et:ob.etapas.map(e=>e.nome+';'+e.orc).join('\n')},v=>{
+ if(!v.nome)return 'Informe o nome da obra.';const et=[];
+ for(const ln of String(v.et||'').split('\n').filter(x=>x.trim())){const[a,b]=ln.split(';');const val=parseFloat(String(b||'').replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',','.'));if(!a.trim()||isNaN(val))return 'Linha inválida: "'+ln+'". Use nome;valor.';const old=(ob.etapas||[]).find(e=>e.nome==a.trim());et.push({id:old?old.id:uid(),nome:a.trim(),orc:val})}
+ const n={id:o?o.id:uid(),nome:v.nome,emp:v.emp,cli:v.cli||'',contrato:v.contrato||0,etapas:et};if(o)DB.obras[DB.obras.findIndex(x=>x.id===o.id)]=n;else DB.obras.push(n);commit()})}
+
+/* ---------- ações ---------- */
+const A={cl:()=>$('#modal').innerHTML='',go:v=>{V=v;OB=null;render()},nl:()=>formL(),el:id=>formL(DB.l.find(l=>l.id===id)),
+ dl:id=>openForm('Excluir lançamento?',[],{},()=>{DB.l=DB.l.filter(l=>l.id!==id);commit()},{ok:'Excluir',note:'Isso remove o lançamento de todos os módulos.'}),
+ pay:id=>{const l=DB.l.find(x=>x.id===id);openForm(R(l)?'Registrar recebimento':'Registrar pagamento',[{k:'pg',l:'Data',t:'date'},{k:'conta',l:'Conta',t:'sel',o:so('contas')}],{pg:T,conta:l.conta},v=>{if(!v.pg)return 'Informe a data.';l.pg=v.pg;l.conta=v.conta;commit()},{note:esc(l.desc)+' · '+brl(l.v)})},
+ fv:()=>{F={q:'',t:'',s:'Vencido'};A.go('lanc')},filt:id=>{F={q:[...DB.forn,...DB.cli,...DB.cc].find(x=>x.id===id).nome,t:'',s:''};A.go('lanc')},
+ ob:id=>{V='obra';OB=id||null;render()},no:()=>formO(),eo:id=>formO(DB.obras.find(o=>o.id===id)),
+ add:k=>openForm('Novo — '+KF[k][0],KF[k][1],{emp:(DB.emp[0]||{}).id,saldo:0},v=>{if(!v.nome)return 'Informe o nome.';DB[k].push({id:uid(),...v});commit()}),
+ ed:(k,id)=>{const x=DB[k].find(y=>y.id===id);openForm('Editar — '+KF[k][0],KF[k][1],{...x},v=>{if(!v.nome)return 'Informe o nome.';Object.assign(x,v);commit()})},
+ sr:(k,id)=>{$('#res').hidden=true;$('#q').value='';if(k=='o')A.ob(id);else if(k=='b')A.go('banc');else{F={q:k=='l'?DB.l.find(l=>l.id==id).desc:[...DB.forn,...DB.cli,...DB.cc].find(x=>x.id==id).nome,t:'',s:''};A.go('lanc')}},
+ rs:()=>openForm('Limpar dados de exemplo?',[],{},()=>{DB={...DB,contas:[],obras:[],forn:[],cli:[],l:[]};commit()},{ok:'Limpar tudo',note:'Remove contas, obras, fornecedores, clientes e lançamentos de exemplo. Mantém empresas, centros de custo e categorias. Depois, cadastre suas contas em Bancos e Caixas.'})};
+document.onclick=e=>{const b=e.target.closest('[data-a]');if(!b){if(!e.target.closest('.sb'))$('#res').hidden=true;return}const[a,...r]=b.dataset.a.split(':');A[a]&&A[a](...r)};
+$('#q').oninput=e=>{const s=norm(e.target.value),r=$('#res'),o=[],has=(...a)=>a.some(x=>norm(x).includes(s));if(s.length<2){r.hidden=true;return}
+ DB.l.filter(l=>has(l.desc,parte(l),nm('obras',l.obra))).slice(0,5).forEach(l=>o.push(['Lançamento',l.desc+' · '+brl(l.v)+' · '+st(l),'l:'+l.id]));
+ DB.forn.filter(x=>has(x.nome)).forEach(x=>o.push(['Fornecedor',x.nome,'f:'+x.id]));DB.cli.filter(x=>has(x.nome)).forEach(x=>o.push(['Cliente',x.nome,'c:'+x.id]));
+ DB.obras.filter(x=>has(x.nome)).forEach(x=>o.push(['Obra',x.nome,'o:'+x.id]));DB.contas.filter(x=>has(x.nome)).forEach(x=>o.push(['Conta',x.nome,'b:'+x.id]));DB.cc.filter(x=>has(x.nome)).forEach(x=>o.push(['Centro',x.nome,'k:'+x.id]));
+ r.innerHTML=o.slice(0,10).map(x=>`<div data-a="sr:${x[2]}"><small>${x[0]}</small>${esc(x[1])}</div>`).join('')||'<div><small></small>Nada encontrado</div>';r.hidden=false};
+document.addEventListener('input',e=>{if(e.target.id=='fq'){F.q=e.target.value;$('#ltb').innerHTML=ltab()}});
+document.addEventListener('change',e=>{if(e.target.id=='ft'||e.target.id=='fs'){F[e.target.id=='ft'?'t':'s']=e.target.value;$('#ltb').innerHTML=ltab()}});
+const NAV=[['dash','Dashboard'],['lanc','Lançamentos'],['banc','Bancos e Caixas'],['obra','Obras'],['cc','Centros de Custo'],['forn','Fornecedores']],VW={dash,lanc,banc,obra,cc,forn};
+function render(){$('#side').innerHTML='<div class="brand">◼ Gestão Financeira</div>'+NAV.map(n=>`<button class="nav ${V==n[0]?'on':''}" data-a="go:${n[0]}">${n[1]}</button>`).join('')+'<button class="nav" style="margin-top:auto;font-size:12px" data-a="rs">Limpar dados de exemplo</button>';$('#view').innerHTML=VW[V]()}
+render();
+</script></body></html>
