@@ -53,7 +53,11 @@ input,select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--bd);b
 <section id="view"></section>
 </div></div>
 <div id="modal"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL="https://gnvvuegpiicrizbtqphb.supabase.co";
+const SUPABASE_KEY="sb_publishable_z0iD8ZkM4fcO6EPmipeDUw_QoAV-Gwk";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const brl=v=>(+v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -80,9 +84,31 @@ function seed(){
   L('D','Concreto – estrutura',92000,'o1','t2','k1','g1','f1','b1',-30,-18,-18),L('D','Aço – estrutura',61000,'o1','t2','k1','g1','f2','b1',-30,-3,''),
   L('D','Empreiteira – alvenaria',54000,'o1','t3','k2','g2','f5','b1',0,5,''),L('D','Materiais elétricos',27000,'o2','t6','k1','g1','f3','b1',-30,-10,-10),
   L('D','Demolição',14000,'o2','t5','k2','g2','f5','b1',-30,-24,-24),L('D','Adubo – lavoura',32000,'','','k4','g3','f4','b2',0,7,'','e2'),L('D','Diaristas – colheita',28000,'','','k3','g2','f5','b2',0,10,'','e2'),L('D','Contabilidade',6500,'','','k5','g4','','b1',0,15,'')]}}
-let DB;try{DB=JSON.parse(localStorage.getItem('gf-db'))}catch(e){}DB=DB||seed();
-let V='dash',OB=null,F={q:'',t:'',s:''};
-const commit=()=>{try{localStorage.setItem('gf-db',JSON.stringify(DB))}catch(e){}render()};
+let DB={emp:[],contas:[],cc:[],cat:[],forn:[],cli:[],obras:[],l:[]};
+let V='dash',OB=null,F={q:'',t:'',s:''},CURRENT_USER=null;
+
+async function loadDB(){
+ const [emp,contas,cc,cat,forn,cli,obras,etapas,l]=await Promise.all([
+  sb.from('empresas').select('*').order('id'), sb.from('contas').select('*').order('id'),
+  sb.from('centros_custo').select('*').order('id'), sb.from('categorias').select('*').order('id'),
+  sb.from('fornecedores').select('*').order('id'), sb.from('clientes').select('*').order('id'),
+  sb.from('obras').select('*').order('id'), sb.from('etapas_obra').select('*').order('id'),
+  sb.from('lancamentos').select('*').order('id')]);
+ const all=[emp,contas,cc,cat,forn,cli,obras,etapas,l]; const er=all.find(x=>x.error); if(er) throw er.error;
+ DB.emp=emp.data.map(x=>({id:String(x.id),nome:x.nome}));
+ DB.contas=contas.data.map(x=>({id:String(x.id),nome:x.nome,emp:String(x.empresa_id||''),saldo:+x.saldo_inicial||0}));
+ DB.cc=cc.data.map(x=>({id:String(x.id),nome:x.nome,emp:String(x.empresa_id||'')}));
+ DB.cat=cat.data.map(x=>({id:String(x.id),nome:x.nome}));
+ DB.forn=forn.data.map(x=>({id:String(x.id),nome:x.nome,doc:x.documento||'',tel:x.telefone||''}));
+ DB.cli=cli.data.map(x=>({id:String(x.id),nome:x.nome,doc:x.documento||'',tel:x.telefone||''}));
+ const es=etapas.data.map(x=>({id:String(x.id),obra:String(x.obra_id),nome:x.nome,orc:+x.valor_orcado||0}));
+ DB.obras=obras.data.map(x=>({id:String(x.id),nome:x.nome,emp:String(x.empresa_id||''),cli:String(x.cliente_id||''),contrato:+x.valor_contrato||0,etapas:es.filter(e=>e.obra===String(x.id))}));
+ DB.l=l.data.map(x=>({id:String(x.id),t:x.tipo,desc:x.descricao,v:+x.valor||0,obra:String(x.obra_id||''),etapa:String(x.etapa_id||''),emp:String(x.empresa_id||''),cc:String(x.centro_custo_id||''),cat:String(x.categoria_id||''),p:String((x.tipo==='D'?x.fornecedor_id:x.cliente_id)||''),conta:String(x.conta_id||''),comp:x.competencia?x.competencia.slice(0,7):'',venc:x.vencimento||'',pg:x.pagamento||''}));
+}
+const nnum=v=>v?Number(v):null;
+async function saveAll(){ await loadDB(); render(); }
+const commit=()=>render();
+
 const nm=(a,id)=>(DB[a].find(x=>x.id===id)||{}).nome||'—';
 const parte=l=>nm(l.t==='D'?'forn':'cli',l.p);
 const st=l=>l.pg?'Pago':(l.venc<T?'Vencido':'Aberto');
@@ -160,7 +186,7 @@ function formL(rec){openForm(rec?'Editar lançamento':'Novo lançamento',LF,rec?
  if(!v.desc)return 'Informe a descrição.';if(!(v.v>0))return 'Informe um valor maior que zero.';if(!v.conta)return 'Cadastre e escolha uma conta em Bancos e Caixas.';if(!v.venc)return 'Informe o vencimento.';
  const o=DB.obras.find(o=>o.id===v.obra);if(o){v.emp=o.emp;if(!o.etapas.some(e=>e.id===v.etapa))v.etapa=''}else{v.obra='';v.etapa=''}
  const{t,desc,v:val,obra,etapa,emp,cc,cat,p,conta,comp,venc,pg}=v,n={id:rec?rec.id:uid(),t,desc,v:val,obra,etapa,emp,cc:cc||'',cat:cat||'',p:p||'',conta,comp,venc,pg:pg||''};
- if(rec)DB.l[DB.l.findIndex(l=>l.id===rec.id)]=n;else DB.l.push(n);commit()},{note:'Status automático: com data de pagamento fica Pago; sem ela, Aberto ou Vencido.'})}
+ (async()=>{const row={tipo:n.t,descricao:n.desc,valor:n.v,obra_id:nnum(n.obra),etapa_id:nnum(n.etapa),empresa_id:nnum(n.emp),centro_custo_id:nnum(n.cc),categoria_id:nnum(n.cat),fornecedor_id:n.t==='D'?nnum(n.p):null,cliente_id:n.t==='R'?nnum(n.p):null,conta_id:nnum(n.conta),competencia:n.comp?n.comp+'-01':null,vencimento:n.venc,pagamento:n.pg||null}; const q=rec?sb.from('lancamentos').update(row).eq('id',Number(rec.id)):sb.from('lancamentos').insert(row); const {error}=await q;if(error){alert(error.message);return}await saveAll()})();commit()},{note:'Status automático: com data de pagamento fica Pago; sem ela, Aberto ou Vencido.'})}
 const KF={forn:['Fornecedor',[{k:'nome',l:'Nome',full:1},{k:'doc',l:'CNPJ/CPF'},{k:'tel',l:'Contato'}]],cli:['Cliente',[{k:'nome',l:'Nome',full:1},{k:'doc',l:'CNPJ/CPF'},{k:'tel',l:'Contato'}]],
  cc:['Centro de custo',[{k:'nome',l:'Nome',full:1},{k:'emp',l:'Empresa',t:'sel',o:so('emp')}]],contas:['Conta / caixa',[{k:'nome',l:'Nome',full:1},{k:'emp',l:'Empresa',t:'sel',o:so('emp')},{k:'saldo',l:'Saldo inicial (R$)',t:'number'}]]};
 function formO(o){const ob=o||{emp:DB.emp[0].id,etapas:[]};
@@ -168,18 +194,18 @@ function formO(o){const ob=o||{emp:DB.emp[0].id,etapas:[]};
  {k:'et',l:'Orçamento por etapa — uma por linha: nome;valor (ex.: Fundação;90000)',t:'area',full:1}],{...ob,et:ob.etapas.map(e=>e.nome+';'+e.orc).join('\n')},v=>{
  if(!v.nome)return 'Informe o nome da obra.';const et=[];
  for(const ln of String(v.et||'').split('\n').filter(x=>x.trim())){const[a,b]=ln.split(';');const val=parseFloat(String(b||'').replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',','.'));if(!a.trim()||isNaN(val))return 'Linha inválida: "'+ln+'". Use nome;valor.';const old=(ob.etapas||[]).find(e=>e.nome==a.trim());et.push({id:old?old.id:uid(),nome:a.trim(),orc:val})}
- const n={id:o?o.id:uid(),nome:v.nome,emp:v.emp,cli:v.cli||'',contrato:v.contrato||0,etapas:et};if(o)DB.obras[DB.obras.findIndex(x=>x.id===o.id)]=n;else DB.obras.push(n);commit()})}
+ const n={id:o?o.id:null,nome:v.nome,emp:v.emp,cli:v.cli||'',contrato:v.contrato||0,etapas:et};(async()=>{let oid=n.id;const row={nome:n.nome,empresa_id:nnum(n.emp),cliente_id:nnum(n.cli),valor_contrato:+n.contrato||0};if(o){const {error}=await sb.from('obras').update(row).eq('id',Number(o.id));if(error)return alert(error.message);await sb.from('etapas_obra').delete().eq('obra_id',Number(o.id));}else{const {data,error}=await sb.from('obras').insert(row).select('id').single();if(error)return alert(error.message);oid=String(data.id)}if(n.etapas.length){const {error}=await sb.from('etapas_obra').insert(n.etapas.map(e=>({obra_id:Number(oid),nome:e.nome,valor_orcado:+e.orc||0})));if(error)return alert(error.message)}await saveAll()})();commit()})}
 
 /* ---------- ações ---------- */
 const A={cl:()=>$('#modal').innerHTML='',go:v=>{V=v;OB=null;render()},nl:()=>formL(),el:id=>formL(DB.l.find(l=>l.id===id)),
- dl:id=>openForm('Excluir lançamento?',[],{},()=>{DB.l=DB.l.filter(l=>l.id!==id);commit()},{ok:'Excluir',note:'Isso remove o lançamento de todos os módulos.'}),
- pay:id=>{const l=DB.l.find(x=>x.id===id);openForm(R(l)?'Registrar recebimento':'Registrar pagamento',[{k:'pg',l:'Data',t:'date'},{k:'conta',l:'Conta',t:'sel',o:so('contas')}],{pg:T,conta:l.conta},v=>{if(!v.pg)return 'Informe a data.';l.pg=v.pg;l.conta=v.conta;commit()},{note:esc(l.desc)+' · '+brl(l.v)})},
+ dl:id=>openForm('Excluir lançamento?',[],{},()=>{(async()=>{const {error}=await sb.from('lancamentos').delete().eq('id',Number(id));if(error)return alert(error.message);await saveAll()})();commit()},{ok:'Excluir',note:'Isso remove o lançamento de todos os módulos.'}),
+ pay:id=>{const l=DB.l.find(x=>x.id===id);openForm(R(l)?'Registrar recebimento':'Registrar pagamento',[{k:'pg',l:'Data',t:'date'},{k:'conta',l:'Conta',t:'sel',o:so('contas')}],{pg:T,conta:l.conta},v=>{if(!v.pg)return 'Informe a data.';(async()=>{const {error}=await sb.from('lancamentos').update({pagamento:v.pg,conta_id:nnum(v.conta)}).eq('id',Number(id));if(error)return alert(error.message);await saveAll()})();commit()},{note:esc(l.desc)+' · '+brl(l.v)})},
  fv:()=>{F={q:'',t:'',s:'Vencido'};A.go('lanc')},filt:id=>{F={q:[...DB.forn,...DB.cli,...DB.cc].find(x=>x.id===id).nome,t:'',s:''};A.go('lanc')},
  ob:id=>{V='obra';OB=id||null;render()},no:()=>formO(),eo:id=>formO(DB.obras.find(o=>o.id===id)),
- add:k=>openForm('Novo — '+KF[k][0],KF[k][1],{emp:(DB.emp[0]||{}).id,saldo:0},v=>{if(!v.nome)return 'Informe o nome.';DB[k].push({id:uid(),...v});commit()}),
- ed:(k,id)=>{const x=DB[k].find(y=>y.id===id);openForm('Editar — '+KF[k][0],KF[k][1],{...x},v=>{if(!v.nome)return 'Informe o nome.';Object.assign(x,v);commit()})},
+ add:k=>openForm('Novo — '+KF[k][0],KF[k][1],{emp:(DB.emp[0]||{}).id,saldo:0},v=>{if(!v.nome)return 'Informe o nome.';(async()=>{const map={forn:['fornecedores',{nome:v.nome,documento:v.doc||null,telefone:v.tel||null}],cli:['clientes',{nome:v.nome,documento:v.doc||null,telefone:v.tel||null}],cc:['centros_custo',{nome:v.nome,empresa_id:nnum(v.emp)}],contas:['contas',{nome:v.nome,empresa_id:nnum(v.emp),saldo_inicial:+v.saldo||0}]};const [t,row]=map[k];const {error}=await sb.from(t).insert(row);if(error)return alert(error.message);await saveAll()})();commit()}),
+ ed:(k,id)=>{const x=DB[k].find(y=>y.id===id);openForm('Editar — '+KF[k][0],KF[k][1],{...x},v=>{if(!v.nome)return 'Informe o nome.';(async()=>{const map={forn:['fornecedores',{nome:v.nome,documento:v.doc||null,telefone:v.tel||null}],cli:['clientes',{nome:v.nome,documento:v.doc||null,telefone:v.tel||null}],cc:['centros_custo',{nome:v.nome,empresa_id:nnum(v.emp)}],contas:['contas',{nome:v.nome,empresa_id:nnum(v.emp),saldo_inicial:+v.saldo||0}]};const [t,row]=map[k];const {error}=await sb.from(t).update(row).eq('id',Number(id));if(error)return alert(error.message);await saveAll()})();commit()})},
  sr:(k,id)=>{$('#res').hidden=true;$('#q').value='';if(k=='o')A.ob(id);else if(k=='b')A.go('banc');else{F={q:k=='l'?DB.l.find(l=>l.id==id).desc:[...DB.forn,...DB.cli,...DB.cc].find(x=>x.id==id).nome,t:'',s:''};A.go('lanc')}},
- rs:()=>openForm('Limpar dados de exemplo?',[],{},()=>{DB={...DB,contas:[],obras:[],forn:[],cli:[],l:[]};commit()},{ok:'Limpar tudo',note:'Remove contas, obras, fornecedores, clientes e lançamentos de exemplo. Mantém empresas, centros de custo e categorias. Depois, cadastre suas contas em Bancos e Caixas.'})};
+ rs:()=>alert('Os dados agora ficam no Supabase. Exclusão em massa foi desativada por segurança.')};
 document.onclick=e=>{const b=e.target.closest('[data-a]');if(!b){if(!e.target.closest('.sb'))$('#res').hidden=true;return}const[a,...r]=b.dataset.a.split(':');A[a]&&A[a](...r)};
 $('#q').oninput=e=>{const s=norm(e.target.value),r=$('#res'),o=[],has=(...a)=>a.some(x=>norm(x).includes(s));if(s.length<2){r.hidden=true;return}
  DB.l.filter(l=>has(l.desc,parte(l),nm('obras',l.obra))).slice(0,5).forEach(l=>o.push(['Lançamento',l.desc+' · '+brl(l.v)+' · '+st(l),'l:'+l.id]));
@@ -189,6 +215,8 @@ $('#q').oninput=e=>{const s=norm(e.target.value),r=$('#res'),o=[],has=(...a)=>a.
 document.addEventListener('input',e=>{if(e.target.id=='fq'){F.q=e.target.value;$('#ltb').innerHTML=ltab()}});
 document.addEventListener('change',e=>{if(e.target.id=='ft'||e.target.id=='fs'){F[e.target.id=='ft'?'t':'s']=e.target.value;$('#ltb').innerHTML=ltab()}});
 const NAV=[['dash','Dashboard'],['lanc','Lançamentos'],['banc','Bancos e Caixas'],['obra','Obras'],['cc','Centros de Custo'],['forn','Fornecedores']],VW={dash,lanc,banc,obra,cc,forn};
-function render(){$('#side').innerHTML='<div class="brand">◼ Gestão Financeira</div>'+NAV.map(n=>`<button class="nav ${V==n[0]?'on':''}" data-a="go:${n[0]}">${n[1]}</button>`).join('')+'<button class="nav" style="margin-top:auto;font-size:12px" data-a="rs">Limpar dados de exemplo</button>';$('#view').innerHTML=VW[V]()}
-render();
+function render(){$('#side').innerHTML='<div class="brand">◼ Gestão Financeira</div>'+NAV.map(n=>`<button class="nav ${V==n[0]?'on':''}" data-a="go:${n[0]}">${n[1]}</button>`).join('')+`<div style="margin-top:auto;padding:10px;font-size:12px;color:var(--mu)">${esc(CURRENT_USER?.email||'')}<br><button id="logout" class="btn sm ghost" style="margin-top:8px">Sair</button></div>`;$('#view').innerHTML=VW[V]();const b=$('#logout');if(b)b.onclick=async()=>{await sb.auth.signOut();location.reload()}}
+function loginScreen(msg=''){$('#side').innerHTML='';document.querySelector('.top').style.display='none';$('#view').innerHTML=`<div style="max-width:420px;margin:10vh auto" class="card"><h1>Gestão Financeira</h1><p class="mu">Entre com seu e-mail e senha.</p><form id="login"><label>E-mail</label><input id="email" type="email" required><br><br><label>Senha</label><input id="senha" type="password" required><p id="loginerr" class="bad">${esc(msg)}</p><button class="btn" style="width:100%">Entrar</button></form></div>`;$('#login').onsubmit=async e=>{e.preventDefault();const {error}=await sb.auth.signInWithPassword({email:$('#email').value,password:$('#senha').value});if(error){$('#loginerr').textContent='E-mail ou senha inválidos.';return}await boot()}}
+async function boot(){const {data:{user}}=await sb.auth.getUser();if(!user){loginScreen();return}CURRENT_USER=user;document.querySelector('.top').style.display='flex';try{await loadDB();render()}catch(e){loginScreen('Não foi possível carregar os dados: '+e.message)}}
+boot();
 </script></body></html>
