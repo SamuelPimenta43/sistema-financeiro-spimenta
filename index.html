@@ -69,22 +69,6 @@ const fd=s=>s?s.slice(8)+'/'+s.slice(5,7)+'/'+s.slice(2,4):'—';
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const sum=a=>a.reduce((x,l)=>x+l.v,0),R=l=>l.t==='R',D=l=>l.t==='D';
 
-function seed(){
- const L=(t,desc,v,obra,etapa,cc,cat,p,conta,cm,venc,pg,emp='e1')=>({id:uid(),t,desc,v,obra,etapa,emp,cc,cat,p,conta,comp:d(cm).slice(0,7),venc:d(venc),pg:pg===''?'':d(pg)});
- return{emp:[{id:'e1',nome:'Construtora'},{id:'e2',nome:'Fazenda Café'}],
- contas:[{id:'b1',nome:'Itaú Construtora',emp:'e1',saldo:80000},{id:'b2',nome:'Sicoob Fazenda',emp:'e2',saldo:45000},{id:'b3',nome:'Caixa da obra',emp:'e1',saldo:3000}],
- cc:[{id:'k1',nome:'Obras – Materiais',emp:'e1'},{id:'k2',nome:'Obras – Mão de obra',emp:'e1'},{id:'k3',nome:'Colheita de café',emp:'e2'},{id:'k4',nome:'Insumos agrícolas',emp:'e2'},{id:'k5',nome:'Administrativo',emp:'e1'},{id:'k6',nome:'Receitas de obra',emp:'e1'}],
- cat:[{id:'g1',nome:'Materiais'},{id:'g2',nome:'Mão de obra'},{id:'g3',nome:'Insumos'},{id:'g4',nome:'Serviços'},{id:'g5',nome:'Medições / vendas'},{id:'g6',nome:'Venda de café'}],
- forn:[{id:'f1',nome:'Cimento Forte',doc:'',tel:''},{id:'f2',nome:'Casa do Aço',doc:'',tel:''},{id:'f3',nome:'Eletro Sul',doc:'',tel:''},{id:'f4',nome:'Agro Insumos',doc:'',tel:''},{id:'f5',nome:'Empreiteira Silva',doc:'',tel:''}],
- cli:[{id:'c1',nome:'Família Almeida',doc:'',tel:''},{id:'c2',nome:'Clínica Vida',doc:'',tel:''},{id:'c3',nome:'Cooperativa do Café',doc:'',tel:''}],
- obras:[{id:'o1',nome:'Residencial Aurora',emp:'e1',cli:'c1',contrato:850000,etapas:[{id:'t1',nome:'Fundação',orc:90000},{id:'t2',nome:'Estrutura',orc:180000},{id:'t3',nome:'Alvenaria',orc:120000},{id:'t4',nome:'Acabamento',orc:200000}]},
-  {id:'o2',nome:'Reforma Clínica Vida',emp:'e1',cli:'c2',contrato:220000,etapas:[{id:'t5',nome:'Demolição',orc:15000},{id:'t6',nome:'Elétrica',orc:40000},{id:'t7',nome:'Acabamento',orc:90000}]}],
- l:[L('R','Medição 1 – Aurora',150000,'o1','t1','k6','g5','c1','b1',-60,-55,-55),L('R','Medição 2 – Aurora',200000,'o1','t2','k6','g5','c1','b1',-30,-20,-20),L('R','Medição 3 – Aurora',180000,'o1','t3','k6','g5','c1','b1',0,8,''),
-  L('R','Sinal – Clínica Vida',66000,'o2','t5','k6','g5','c2','b1',-30,-25,-25),L('R','Venda de café – safra',90000,'','','k3','g6','c3','b2',0,12,'','e2'),
-  L('D','Cimento – fundação',48000,'o1','t1','k1','g1','f1','b1',-60,-58,-58),L('D','Aço – fundação',50000,'o1','t1','k1','g1','f2','b1',-60,-50,-50),
-  L('D','Concreto – estrutura',92000,'o1','t2','k1','g1','f1','b1',-30,-18,-18),L('D','Aço – estrutura',61000,'o1','t2','k1','g1','f2','b1',-30,-3,''),
-  L('D','Empreiteira – alvenaria',54000,'o1','t3','k2','g2','f5','b1',0,5,''),L('D','Materiais elétricos',27000,'o2','t6','k1','g1','f3','b1',-30,-10,-10),
-  L('D','Demolição',14000,'o2','t5','k2','g2','f5','b1',-30,-24,-24),L('D','Adubo – lavoura',32000,'','','k4','g3','f4','b2',0,7,'','e2'),L('D','Diaristas – colheita',28000,'','','k3','g2','f5','b2',0,10,'','e2'),L('D','Contabilidade',6500,'','','k5','g4','','b1',0,15,'')]}}
 let DB={emp:[],contas:[],cc:[],cat:[],forn:[],cli:[],obras:[],l:[]};
 let V='dash',OB=null,F={q:'',t:'',s:''},CURRENT_USER=null;
 
@@ -104,11 +88,16 @@ async function loadDB(){
  DB.cli=cli.data.map(x=>({id:String(x.id),nome:x.nome,doc:x.documento||'',tel:x.telefone||''}));
  const es=etapas.data.map(x=>({id:String(x.id),obra:String(x.obra_id),nome:x.nome,orc:+x.valor_orcado||0}));
  DB.obras=obras.data.map(x=>({id:String(x.id),nome:x.nome,emp:String(x.empresa_id||''),cli:String(x.cliente_id||''),contrato:+x.valor_contrato||0,etapas:es.filter(e=>e.obra===String(x.id))}));
- DB.l=l.data.map(x=>({id:String(x.id),t:x.tipo,desc:x.descricao,v:+x.valor||0,obra:String(x.obra_id||''),etapa:String(x.etapa_id||''),emp:String(x.empresa_id||''),cc:String(x.centro_custo_id||''),cat:String(x.categoria_id||''),p:String((x.tipo==='D'?x.fornecedor_id:x.cliente_id)||''),conta:String(x.conta_id||''),comp:x.competencia?x.competencia.slice(0,7):'',venc:x.vencimento||'',pg:x.pagamento||''}));
+ DB.l=l.data.map(x=>({id:String(x.id),t:x.tipo,desc:x.descricao,v:+x.valor||0,obra:String(x.obra_id||''),etapa:String(x.etapa_id||''),emp:String(x.empresa_id||''),cc:String(x.centro_custo_id||''),cat:String(x.categoria_id||''),p:String((x.tipo==='D'?x.fornecedor_id:x.cliente_id)||''),conta:String(x.conta_id||''),comp:x.competencia?x.competencia.slice(0,7):'',venc:x.vencimento||'',pg:x.pagamento||'',obs:x.observacao||''}));
 }
 const nnum=v=>v?Number(v):null;
 async function saveAll(){ await loadDB(); render(); }
 const commit=()=>render();
+const TB={forn:'fornecedores',cli:'clientes',cc:'centros_custo',contas:'contas'};
+const rowOf=(k,v)=>({forn:{nome:v.nome,documento:v.doc||null,telefone:v.tel||null},cli:{nome:v.nome,documento:v.doc||null,telefone:v.tel||null},cc:{nome:v.nome,empresa_id:nnum(v.emp)},contas:{nome:v.nome,empresa_id:nnum(v.emp),saldo_inicial:+v.saldo||0}}[k]);
+async function dbw(q){const{error}=await q;if(error)throw error}
+const fail=e=>/observacao/i.test(e.message||'')?'A coluna "observacao" não existe na tabela lancamentos. No Supabase (SQL Editor) rode: alter table lancamentos add column observacao text;':(e.message||String(e));
+async function persist(fn){try{await fn();await saveAll()}catch(e){try{await saveAll()}catch(_){}return fail(e)}}
 
 const nm=(a,id)=>(DB[a].find(x=>x.id===id)||{}).nome||'—';
 const parte=l=>nm(l.t==='D'?'forn':'cli',l.p);
@@ -137,14 +126,15 @@ function dash(){
   if(i.ma<i.mp-0.05)al.push(`<div class="al wr" data-a="ob:${o.id}">▲ ${esc(o.nome)}: margem projetada caiu de ${pc(i.mp)} para ${pc(i.ma)}</div>`)});
  const prox=ab.sort((a,b)=>a.venc.localeCompare(b.venc)).slice(0,6);
  return `<div class="hd"><div><h1>Dashboard</h1><span class="mu">Visão geral de hoje · ${fd(T)}</span></div></div>
- <div class="grid g4">${kpi('Caixa disponível',brl(caixa),DB.contas.length+' conta(s)/caixa(s)',caixa<0?'bad':'pt')}${kpi('Contas a pagar',brl(sum(ab.filter(D))),ab.filter(D).length+' em aberto','bad')}${kpi('Contas a receber',brl(sum(ab.filter(R))),ab.filter(R).length+' em aberto','ok')}${kpi('Resultado do mês',brl(res),'Receitas '+brl(rec)+' · Despesas '+brl(des),res<0?'bad':'ok')}</div>
+ <div class="grid g4">${kpi('Caixa disponível',brl(caixa),DB.contas.length+' conta(s)/caixa(s)',caixa<0?'bad':'pt')}${kpi('Contas a pagar',brl(sum(ab.filter(D))),ab.filter(D).length+' em aberto','bad')}${kpi('Contas a receber',brl(sum(ab.filter(R))),ab.filter(R).length+' em aberto','ok')}${kpi('Resultado do mês',brl(res),'Entradas '+brl(rec)+' · Saídas '+brl(des),res<0?'bad':'ok')}</div>
  <div class="grid g2"><div class="card"><h2>Fluxo de caixa</h2>${chart}</div><div class="card"><h2>Alertas</h2>${al.join('')||'<div class="al ok">● Tudo em dia.</div>'}</div></div>
  <div class="grid g2"><div class="card"><h2>Obras: orçado x realizado</h2>${DB.obras.map(o=>{const i=oi(o),p=i.orc?i.real/i.orc*100:0;return `<div data-a="ob:${o.id}" style="cursor:pointer;margin-bottom:14px"><b>${esc(o.nome)}</b> <span class="mu" style="float:right">${brl(i.real)} de ${brl(i.orc)}</span><div class="bar"><i class="${p>100?'bad':''}" style="width:${Math.min(p,100)}%"></i></div></div>`}).join('')||'<p class="mu">Nenhuma obra cadastrada.</p>'}</div>
  <div class="card"><h2>Próximos vencimentos</h2>${tbl(['Venc.','Descrição','>Valor'],prox.map(l=>`<tr><td>${fd(l.venc)}</td><td>${esc(l.desc)}<small>${esc(parte(l))}</small></td><td class="v ${R(l)?'ok':'bad'}">${R(l)?'+':'−'}${brl(l.v)}<small>${st(l)}</small></td></tr>`),'Nenhum vencimento em aberto.')}</div></div>`}
 
 function ltab(){
  const s=norm(F.q),rows=DB.l.filter(l=>(!F.t||l.t===F.t)&&(!F.s||st(l)===F.s)&&(!s||[l.desc,parte(l),nm('obras',l.obra),nm('cc',l.cc),nm('cat',l.cat),nm('contas',l.conta)].some(x=>norm(x).includes(s)))).sort((a,b)=>b.venc.localeCompare(a.venc));
- return tbl(['Venc.','Descrição','Centro / categoria','Conta','>Valor','Status',''],rows.map(l=>`<tr><td>${fd(l.venc)}</td><td><b>${esc(l.desc)}</b><small>${l.obra?esc(nm('obras',l.obra))+' · '+esc(((DB.obras.find(o=>o.id===l.obra)||{etapas:[]}).etapas.find(e=>e.id===l.etapa)||{nome:'sem etapa'}).nome)+' · ':''}${esc(parte(l))} · ${esc(nm('emp',l.emp))}</small></td><td>${esc(nm('cc',l.cc))}<small>${esc(nm('cat',l.cat))}</small></td><td>${esc(nm('contas',l.conta))}</td><td class="v ${R(l)?'ok':'bad'}">${R(l)?'+':'−'}${brl(l.v)}</td><td>${chip(st(l),sc(st(l)))}</td><td class="v">${l.pg?'':`<button class="btn sm" data-a="pay:${l.id}">${R(l)?'Receber':'Pagar'}</button> `}<button class="btn sm ghost" data-a="el:${l.id}">Editar</button> <button class="btn sm ghost" data-a="dl:${l.id}">✕</button></td></tr>`),'Nenhum lançamento encontrado.')}
+ return ltbl(rows)}
+function ltbl(rows){return tbl(['Venc.','Descrição','Centro / categoria','Conta','>Valor','Status',''],rows.map(l=>`<tr><td>${fd(l.venc)}</td><td><b>${esc(l.desc)}</b><small>${l.obra?esc(nm('obras',l.obra))+' · '+esc(((DB.obras.find(o=>o.id===l.obra)||{etapas:[]}).etapas.find(e=>e.id===l.etapa)||{nome:'sem etapa'}).nome)+' · ':''}${esc(parte(l))} · ${esc(nm('emp',l.emp))}</small>${l.obs?'<small>Obs.: '+esc(l.obs)+'</small>':''}</td><td>${esc(nm('cc',l.cc))}<small>${esc(nm('cat',l.cat))}</small></td><td>${esc(nm('contas',l.conta))}</td><td class="v ${R(l)?'ok':'bad'}">${R(l)?'+':'−'}${brl(l.v)}</td><td>${chip(st(l),sc(st(l)))}</td><td class="v">${l.pg?'':`<button class="btn sm" data-a="pay:${l.id}">${R(l)?'Receber':'Pagar'}</button> `}<button class="btn sm ghost" data-a="el:${l.id}">Editar</button> <button class="btn sm ghost" data-a="dl:${l.id}">✕</button></td></tr>`),'Nenhum lançamento encontrado.')}
 function lanc(){return `<div class="hd"><div><h1>Lançamentos</h1><span class="mu">Um lançamento alimenta caixa, obras, centros e fornecedores.</span></div><button class="btn" data-a="nl">+ Novo lançamento</button></div>
  <div class="fl"><input id="fq" placeholder="Filtrar…" value="${esc(F.q)}"><select id="ft"><option value="">Todos os tipos</option><option value="D" ${F.t=='D'?'selected':''}>Despesas</option><option value="R" ${F.t=='R'?'selected':''}>Receitas</option></select><select id="fs"><option value="">Todos os status</option>${['Aberto','Vencido','Pago'].map(x=>`<option ${F.s==x?'selected':''}>${x}</option>`).join('')}</select></div><div class="card" id="ltb">${ltab()}</div>`}
 
@@ -156,9 +146,10 @@ function banc(){
 const mc=(i)=>i.ma<0?'bad':i.ma<i.mp-0.05?'wr':'ok';
 function obra(){
  if(OB){const o=DB.obras.find(x=>x.id===OB);if(!o){OB=null;return obra()}const i=oi(o);
-  return `<div class="hd"><div><button class="btn sm ghost" data-a="ob:">← Obras</button><h1 style="margin-top:8px">${esc(o.nome)}</h1><span class="mu">${esc(nm('cli',o.cli))} · ${esc(nm('emp',o.emp))}</span></div><button class="btn" data-a="eo:${o.id}">Editar obra e orçamento</button></div>
+  return `<div class="hd"><div><button class="btn sm ghost" data-a="ob:">← Obras</button><h1 style="margin-top:8px">${esc(o.nome)}</h1><span class="mu">${esc(nm('cli',o.cli))} · ${esc(nm('emp',o.emp))}</span></div><div class="fl" style="margin:0"><button class="btn" data-a="nlo:${o.id}">+ Novo lançamento</button><button class="btn ghost" data-a="eo:${o.id}">Editar obra</button><button class="btn ghost" data-a="delo:${o.id}">Excluir obra</button></div></div>
   <div class="grid g4">${kpi('Contrato',brl(o.contrato),'Orçado '+brl(i.orc))}${kpi('Realizado',brl(i.real),'Diferença '+brl(i.orc-i.real),i.real>i.orc?'bad':'')}${kpi('Margem prevista',pc(i.mp),'contrato − orçado','pt')}${kpi('Margem atual',pc(i.ma),'projetada com estouros',mc(i))}</div>
-  <div class="card"><h2>Orçado x realizado por etapa</h2>${tbl(['Etapa','>Orçado','>Realizado','>Diferença','Execução',''],i.rows.map(e=>`<tr><td><b>${esc(e.nome)}</b></td><td class="v">${brl(e.orc)}</td><td class="v">${brl(e.r)}</td><td class="v ${e.dif<0?'bad':'ok'}">${brl(e.dif)}</td><td style="min-width:120px"><div class="bar"><i class="${e.pct>100?'bad':''}" style="width:${Math.min(e.pct,100)}%"></i></div>${Math.round(e.pct)}%</td><td>${e.r>e.orc?chip('Acima do orçamento','bad'):e.pct>90?chip('Atenção','wr'):chip('No orçamento','ok')}</td></tr>`).concat(i.sem>0?[`<tr><td>Sem etapa</td><td class="v">—</td><td class="v">${brl(i.sem)}</td><td></td><td></td><td>${chip('Classificar','wr')}</td></tr>`]:[]),'Cadastre etapas no orçamento da obra.')}</div>`}
+  <div class="card"><h2>Orçado x realizado por etapa</h2>${tbl(['Etapa','>Orçado','>Realizado','>Diferença','Execução',''],i.rows.map(e=>`<tr><td><b>${esc(e.nome)}</b></td><td class="v">${brl(e.orc)}</td><td class="v">${brl(e.r)}</td><td class="v ${e.dif<0?'bad':'ok'}">${brl(e.dif)}</td><td style="min-width:120px"><div class="bar"><i class="${e.pct>100?'bad':''}" style="width:${Math.min(e.pct,100)}%"></i></div>${Math.round(e.pct)}%</td><td>${e.r>e.orc?chip('Acima do orçamento','bad'):e.pct>90?chip('Atenção','wr'):chip('No orçamento','ok')}</td></tr>`).concat(i.sem>0?[`<tr><td>Sem etapa</td><td class="v">—</td><td class="v">${brl(i.sem)}</td><td></td><td></td><td>${chip('Classificar','wr')}</td></tr>`]:[]),'Cadastre etapas no orçamento da obra.')}</div>
+  ${(()=>{const ls=DB.l.filter(l=>l.obra===o.id),en=sum(ls.filter(R)),sa=sum(ls.filter(D));return `<div class="card" style="margin-top:16px"><div class="hd" style="margin:0 0 8px"><h2 style="margin:0">Financeiro da obra</h2><span class="mu">Entradas ${brl(en)} · Saídas ${brl(sa)} · Resultado <b class="${en-sa<0?'bad':'ok'}">${brl(en-sa)}</b></span></div>${ltbl(ls.sort((a,b)=>b.venc.localeCompare(a.venc)))}</div>`})()}`}
  return `<div class="hd"><div><h1>Obras</h1><span class="mu">Orçamento por etapa, realizado e margem.</span></div><button class="btn" data-a="no">+ Nova obra</button></div><div class="grid g3">${DB.obras.map(o=>{const i=oi(o),p=i.orc?i.real/i.orc*100:0;return `<div class="card" data-a="ob:${o.id}" style="cursor:pointer"><h2>${esc(o.nome)}</h2><span class="mu">${esc(nm('cli',o.cli))}</span><div class="bar"><i class="${p>100?'bad':''}" style="width:${Math.min(p,100)}%"></i></div><p class="mu">${brl(i.real)} de ${brl(i.orc)}</p>${chip('Prevista '+pc(i.mp),'pt')} ${chip('Atual '+pc(i.ma),mc(i))}</div>`}).join('')||'<p class="mu">Nenhuma obra cadastrada.</p>'}</div>`}
 
 function cc(){return `<div class="hd"><div><h1>Centros de Custo</h1><span class="mu">Resultado por área da empresa. Clique para ver os lançamentos.</span></div><button class="btn" data-a="add:cc">+ Novo centro</button></div><div class="card">${tbl(['Centro','Empresa','>Receitas','>Despesas','>Resultado',''],DB.cc.map(k=>{const m=DB.l.filter(l=>l.cc===k.id),r=sum(m.filter(R)),x=sum(m.filter(D));return `<tr class="c" data-a="filt:${k.id}"><td><b>${esc(k.nome)}</b></td><td>${esc(nm('emp',k.emp))}</td><td class="v ok">${brl(r)}</td><td class="v bad">${brl(x)}</td><td class="v ${r-x<0?'bad':'ok'}">${brl(r-x)}</td><td class="v"><button class="btn sm ghost" data-a="ed:cc:${k.id}">Editar</button></td></tr>`}))}</div>`}
@@ -174,38 +165,52 @@ function openForm(title,fields,vals,onSave,opt={}){
   $('#modal').innerHTML=`<div class="ov"><form class="dlg" id="fm"><h2>${title}</h2>${opt.note?`<p class="mu">${opt.note}</p>`:''}<div class="fg">${fields.filter(f=>!f.show||f.show(vals)).map(fld).join('')}</div><div id="err"></div><div class="fa"><button type="button" class="btn ghost" data-a="cl">Cancelar</button><button class="btn">${opt.ok||'Salvar'}</button></div></form></div>`;
   const fm=$('#fm'),grab=()=>fields.forEach(f=>{const e=fm.elements[f.k];if(e)vals[f.k]=f.t=='number'?(e.value===''?'':parseFloat(e.value)):e.value});
   fm.onchange=e=>{if(e.target.dataset.dep){grab();if(e.target.name=='t')vals.p='';if(e.target.name=='obra')vals.etapa='';draw()}};
-  fm.onsubmit=e=>{e.preventDefault();grab();const er=onSave(vals);if(er)$('#err').textContent=er;else $('#modal').innerHTML=''}};
+  fm.onsubmit=async e=>{e.preventDefault();grab();const b=fm.querySelector('button:not([type])');b.disabled=true;let er;try{er=await onSave(vals)}catch(x){er=fail(x)}if(er){$('#err').textContent=er;b.disabled=false}else $('#modal').innerHTML=''}};
  draw()}
 const so=(a,e)=>()=>[...(e?[['','—']]:[]),...DB[a].map(x=>[x.id,x.nome])];
 const LF=[{k:'t',l:'Tipo',t:'sel',dep:1,o:()=>[['D','Despesa (a pagar)'],['R','Receita (a receber)']]},{k:'desc',l:'Descrição',full:1},{k:'v',l:'Valor (R$)',t:'number'},
- {k:'conta',l:'Conta bancária / caixa',t:'sel',o:so('contas')},{k:'obra',l:'Obra',t:'sel',dep:1,o:so('obras',1)},
+ {k:'conta',l:'Banco / Caixa',t:'sel',o:so('contas')},{k:'obra',l:'Obra',t:'sel',dep:1,o:so('obras',1)},
  {k:'etapa',l:'Etapa da obra',t:'sel',show:v=>!!v.obra,o:v=>[['','—'],...((DB.obras.find(o=>o.id===v.obra)||{etapas:[]}).etapas.map(e=>[e.id,e.nome]))]},
  {k:'emp',l:'Empresa',t:'sel',show:v=>!v.obra,o:so('emp')},{k:'cc',l:'Centro de custo',t:'sel',o:so('cc',1)},{k:'cat',l:'Categoria financeira',t:'sel',o:so('cat',1)},
  {k:'p',l:v=>v.t=='D'?'Fornecedor':'Cliente',t:'sel',o:v=>[['','—'],...DB[v.t=='D'?'forn':'cli'].map(x=>[x.id,x.nome])]},
- {k:'comp',l:'Competência',t:'month'},{k:'venc',l:'Vencimento',t:'date'},{k:'pg',l:'Pagamento / recebimento',t:'date'}];
-function formL(rec){openForm(rec?'Editar lançamento':'Novo lançamento',LF,rec?{...rec}:{t:'D',emp:DB.emp[0].id,conta:(DB.contas[0]||{}).id,comp:CM,venc:T,obra:'',etapa:''},v=>{
+ {k:'comp',l:'Data de competência (mês)',t:'month'},{k:'venc',l:'Vencimento',t:'date'},{k:'pg',l:'Data de pagamento / recebimento',t:'date'},{k:'obs',l:'Observação',t:'area',full:1}];
+function formL(rec,pre){openForm(rec?'Editar lançamento':'Novo lançamento',LF,rec?{...rec}:{t:'D',emp:(DB.emp[0]||{}).id||'',conta:(DB.contas[0]||{}).id,comp:CM,venc:T,obra:'',etapa:'',obs:'',...pre},v=>{
  if(!v.desc)return 'Informe a descrição.';if(!(v.v>0))return 'Informe um valor maior que zero.';if(!v.conta)return 'Cadastre e escolha uma conta em Bancos e Caixas.';if(!v.venc)return 'Informe o vencimento.';
  const o=DB.obras.find(o=>o.id===v.obra);if(o){v.emp=o.emp;if(!o.etapas.some(e=>e.id===v.etapa))v.etapa=''}else{v.obra='';v.etapa=''}
  const{t,desc,v:val,obra,etapa,emp,cc,cat,p,conta,comp,venc,pg}=v,n={id:rec?rec.id:uid(),t,desc,v:val,obra,etapa,emp,cc:cc||'',cat:cat||'',p:p||'',conta,comp,venc,pg:pg||''};
- (async()=>{const row={tipo:n.t,descricao:n.desc,valor:n.v,obra_id:nnum(n.obra),etapa_id:nnum(n.etapa),empresa_id:nnum(n.emp),centro_custo_id:nnum(n.cc),categoria_id:nnum(n.cat),fornecedor_id:n.t==='D'?nnum(n.p):null,cliente_id:n.t==='R'?nnum(n.p):null,conta_id:nnum(n.conta),competencia:n.comp?n.comp+'-01':null,vencimento:n.venc,pagamento:n.pg||null}; const q=rec?sb.from('lancamentos').update(row).eq('id',Number(rec.id)):sb.from('lancamentos').insert(row); const {error}=await q;if(error){alert(error.message);return}await saveAll()})();commit()},{note:'Status automático: com data de pagamento fica Pago; sem ela, Aberto ou Vencido.'})}
+ const row={tipo:n.t,descricao:n.desc,valor:n.v,obra_id:nnum(n.obra),etapa_id:nnum(n.etapa),empresa_id:nnum(n.emp),centro_custo_id:nnum(n.cc),categoria_id:nnum(n.cat),fornecedor_id:n.t==='D'?nnum(n.p):null,cliente_id:n.t==='R'?nnum(n.p):null,conta_id:nnum(n.conta),competencia:n.comp?n.comp+'-01':null,vencimento:n.venc,pagamento:n.pg||null};
+ if(v.obs||(rec&&rec.obs))row.observacao=v.obs||null;
+ return persist(()=>dbw(rec?sb.from('lancamentos').update(row).eq('id',Number(rec.id)):sb.from('lancamentos').insert(row)))},{note:'Status automático: com data de pagamento fica Pago; sem ela, Aberto ou Vencido.'})}
 const KF={forn:['Fornecedor',[{k:'nome',l:'Nome',full:1},{k:'doc',l:'CNPJ/CPF'},{k:'tel',l:'Contato'}]],cli:['Cliente',[{k:'nome',l:'Nome',full:1},{k:'doc',l:'CNPJ/CPF'},{k:'tel',l:'Contato'}]],
  cc:['Centro de custo',[{k:'nome',l:'Nome',full:1},{k:'emp',l:'Empresa',t:'sel',o:so('emp')}]],contas:['Conta / caixa',[{k:'nome',l:'Nome',full:1},{k:'emp',l:'Empresa',t:'sel',o:so('emp')},{k:'saldo',l:'Saldo inicial (R$)',t:'number'}]]};
-function formO(o){const ob=o||{emp:DB.emp[0].id,etapas:[]};
+function formO(o){const ob=o||{emp:(DB.emp[0]||{}).id||'',etapas:[]};
  openForm(o?'Editar obra':'Nova obra',[{k:'nome',l:'Nome da obra',full:1},{k:'emp',l:'Empresa',t:'sel',o:so('emp')},{k:'cli',l:'Cliente',t:'sel',o:so('cli',1)},{k:'contrato',l:'Valor do contrato (R$)',t:'number'},
  {k:'et',l:'Orçamento por etapa — uma por linha: nome;valor (ex.: Fundação;90000)',t:'area',full:1}],{...ob,et:ob.etapas.map(e=>e.nome+';'+e.orc).join('\n')},v=>{
  if(!v.nome)return 'Informe o nome da obra.';const et=[];
- for(const ln of String(v.et||'').split('\n').filter(x=>x.trim())){const[a,b]=ln.split(';');const val=parseFloat(String(b||'').replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',','.'));if(!a.trim()||isNaN(val))return 'Linha inválida: "'+ln+'". Use nome;valor.';const old=(ob.etapas||[]).find(e=>e.nome==a.trim());et.push({id:old?old.id:uid(),nome:a.trim(),orc:val})}
- const n={id:o?o.id:null,nome:v.nome,emp:v.emp,cli:v.cli||'',contrato:v.contrato||0,etapas:et};(async()=>{let oid=n.id;const row={nome:n.nome,empresa_id:nnum(n.emp),cliente_id:nnum(n.cli),valor_contrato:+n.contrato||0};if(o){const {error}=await sb.from('obras').update(row).eq('id',Number(o.id));if(error)return alert(error.message);await sb.from('etapas_obra').delete().eq('obra_id',Number(o.id));}else{const {data,error}=await sb.from('obras').insert(row).select('id').single();if(error)return alert(error.message);oid=String(data.id)}if(n.etapas.length){const {error}=await sb.from('etapas_obra').insert(n.etapas.map(e=>({obra_id:Number(oid),nome:e.nome,valor_orcado:+e.orc||0})));if(error)return alert(error.message)}await saveAll()})();commit()})}
+ for(const ln of String(v.et||'').split('\n').filter(x=>x.trim())){const[a,b]=ln.split(';');const val=parseFloat(String(b||'').replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',','.'));if(!a.trim()||isNaN(val))return 'Linha inválida: "'+ln+'". Use nome;valor.';et.push({nome:a.trim(),orc:val})}
+ return persist(async()=>{
+  const row={nome:v.nome,empresa_id:nnum(v.emp),cliente_id:nnum(v.cli),valor_contrato:+v.contrato||0};let oid;
+  if(o){await dbw(sb.from('obras').update(row).eq('id',Number(o.id)));oid=o.id}
+  else{const{data,error}=await sb.from('obras').insert(row).select('id').single();if(error)throw error;oid=String(data.id)}
+  const old=o?o.etapas:[],keep=new Set();
+  for(const e of et){const m=old.find(x=>x.nome==e.nome&&!keep.has(x.id)),r={obra_id:Number(oid),nome:e.nome,valor_orcado:e.orc};
+   if(m){keep.add(m.id);await dbw(sb.from('etapas_obra').update(r).eq('id',Number(m.id)))}else await dbw(sb.from('etapas_obra').insert(r))}
+  for(const m of old.filter(x=>!keep.has(x.id))){const n=DB.l.filter(l=>l.etapa===m.id).length;if(n)throw new Error('A etapa "'+m.nome+'" tem '+n+' lançamento(s). Mova ou exclua esses lançamentos antes de removê-la.');await dbw(sb.from('etapas_obra').delete().eq('id',Number(m.id)))}
+ })})}
 
 /* ---------- ações ---------- */
 const A={cl:()=>$('#modal').innerHTML='',go:v=>{V=v;OB=null;render()},nl:()=>formL(),el:id=>formL(DB.l.find(l=>l.id===id)),
- dl:id=>openForm('Excluir lançamento?',[],{},()=>{(async()=>{const {error}=await sb.from('lancamentos').delete().eq('id',Number(id));if(error)return alert(error.message);await saveAll()})();commit()},{ok:'Excluir',note:'Isso remove o lançamento de todos os módulos.'}),
- pay:id=>{const l=DB.l.find(x=>x.id===id);openForm(R(l)?'Registrar recebimento':'Registrar pagamento',[{k:'pg',l:'Data',t:'date'},{k:'conta',l:'Conta',t:'sel',o:so('contas')}],{pg:T,conta:l.conta},v=>{if(!v.pg)return 'Informe a data.';(async()=>{const {error}=await sb.from('lancamentos').update({pagamento:v.pg,conta_id:nnum(v.conta)}).eq('id',Number(id));if(error)return alert(error.message);await saveAll()})();commit()},{note:esc(l.desc)+' · '+brl(l.v)})},
+ dl:id=>openForm('Excluir lançamento?',[],{},()=>persist(()=>dbw(sb.from('lancamentos').delete().eq('id',Number(id)))),{ok:'Excluir',note:'Isso remove o lançamento de todos os módulos.'}),
+ pay:id=>{const l=DB.l.find(x=>x.id===id);openForm(R(l)?'Registrar recebimento':'Registrar pagamento',[{k:'pg',l:'Data',t:'date'},{k:'conta',l:'Conta',t:'sel',o:so('contas')}],{pg:T,conta:l.conta},v=>{if(!v.pg)return 'Informe a data.';return persist(()=>dbw(sb.from('lancamentos').update({pagamento:v.pg,conta_id:nnum(v.conta)}).eq('id',Number(id))))},{note:esc(l.desc)+' · '+brl(l.v)})},
  fv:()=>{F={q:'',t:'',s:'Vencido'};A.go('lanc')},filt:id=>{F={q:[...DB.forn,...DB.cli,...DB.cc].find(x=>x.id===id).nome,t:'',s:''};A.go('lanc')},
  ob:id=>{V='obra';OB=id||null;render()},no:()=>formO(),eo:id=>formO(DB.obras.find(o=>o.id===id)),
- add:k=>openForm('Novo — '+KF[k][0],KF[k][1],{emp:(DB.emp[0]||{}).id,saldo:0},v=>{if(!v.nome)return 'Informe o nome.';(async()=>{const map={forn:['fornecedores',{nome:v.nome,documento:v.doc||null,telefone:v.tel||null}],cli:['clientes',{nome:v.nome,documento:v.doc||null,telefone:v.tel||null}],cc:['centros_custo',{nome:v.nome,empresa_id:nnum(v.emp)}],contas:['contas',{nome:v.nome,empresa_id:nnum(v.emp),saldo_inicial:+v.saldo||0}]};const [t,row]=map[k];const {error}=await sb.from(t).insert(row);if(error)return alert(error.message);await saveAll()})();commit()}),
- ed:(k,id)=>{const x=DB[k].find(y=>y.id===id);openForm('Editar — '+KF[k][0],KF[k][1],{...x},v=>{if(!v.nome)return 'Informe o nome.';(async()=>{const map={forn:['fornecedores',{nome:v.nome,documento:v.doc||null,telefone:v.tel||null}],cli:['clientes',{nome:v.nome,documento:v.doc||null,telefone:v.tel||null}],cc:['centros_custo',{nome:v.nome,empresa_id:nnum(v.emp)}],contas:['contas',{nome:v.nome,empresa_id:nnum(v.emp),saldo_inicial:+v.saldo||0}]};const [t,row]=map[k];const {error}=await sb.from(t).update(row).eq('id',Number(id));if(error)return alert(error.message);await saveAll()})();commit()})},
+ add:k=>openForm('Novo — '+KF[k][0],KF[k][1],{emp:(DB.emp[0]||{}).id,saldo:0},v=>{if(!v.nome)return 'Informe o nome.';return persist(()=>dbw(sb.from(TB[k]).insert(rowOf(k,v))))}),
+ ed:(k,id)=>{const x=DB[k].find(y=>y.id===id);openForm('Editar — '+KF[k][0],KF[k][1],{...x},v=>{if(!v.nome)return 'Informe o nome.';return persist(()=>dbw(sb.from(TB[k]).update(rowOf(k,v)).eq('id',Number(id))))})},
  sr:(k,id)=>{$('#res').hidden=true;$('#q').value='';if(k=='o')A.ob(id);else if(k=='b')A.go('banc');else{F={q:k=='l'?DB.l.find(l=>l.id==id).desc:[...DB.forn,...DB.cli,...DB.cc].find(x=>x.id==id).nome,t:'',s:''};A.go('lanc')}},
+ delo:id=>{const o=DB.obras.find(x=>x.id===id),n=DB.l.filter(l=>l.obra===id).length;
+  if(n)return openForm('Não é possível excluir',[],{},()=>{},{ok:'Entendi',note:'A obra "'+esc(o.nome)+'" tem '+n+' lançamento(s) vinculado(s). Exclua ou reatribua esses lançamentos antes de excluir a obra.'});
+  openForm('Excluir obra?',[],{},()=>persist(async()=>{await dbw(sb.from('etapas_obra').delete().eq('obra_id',Number(id)));await dbw(sb.from('obras').delete().eq('id',Number(id)));OB=null}),{ok:'Excluir',note:'Remove a obra "'+esc(o.nome)+'" e o orçamento das etapas.'})},
+ nlo:id=>formL(null,{obra:id}),
  rs:()=>alert('Os dados agora ficam no Supabase. Exclusão em massa foi desativada por segurança.')};
 document.onclick=e=>{const b=e.target.closest('[data-a]');if(!b){if(!e.target.closest('.sb'))$('#res').hidden=true;return}const[a,...r]=b.dataset.a.split(':');A[a]&&A[a](...r)};
 $('#q').oninput=e=>{const s=norm(e.target.value),r=$('#res'),o=[],has=(...a)=>a.some(x=>norm(x).includes(s));if(s.length<2){r.hidden=true;return}
@@ -221,3 +226,4 @@ function loginScreen(msg=''){$('#side').innerHTML='';document.querySelector('.to
 async function boot(){const {data:{user}}=await sb.auth.getUser();if(!user){loginScreen();return}CURRENT_USER=user;document.querySelector('.top').style.display='flex';try{await loadDB();render()}catch(e){loginScreen('Não foi possível carregar os dados: '+e.message)}}
 boot();
 </script></body></html>
+
